@@ -83,17 +83,26 @@ sub Run {
         $LinkListParams{Type} = $Param{Data}{Type};
     }
 
-    my %LinkList = $Kernel::OM->Get('Kernel::System::LinkObject')->LinkList(
+    my $LinkListRef = $Kernel::OM->Get('Kernel::System::LinkObject')->LinkList(
         %LinkListParams,
     );
+
+    # LinkList may return a hashref or a hash depending on context.
+    my %LinkList;
+    if ( ref $LinkListRef eq 'HASH' ) {
+        %LinkList = %{$LinkListRef};
+    }
 
     # Flatten the nested hash structure for JSON serialization.
     # LinkList returns: {ObjectType}{LinkType}{Direction}{ID} = 1
     # Convert to a list of link entries for clean JSON output.
     my @Links;
     for my $ObjectType ( sort keys %LinkList ) {
+        next if ref $LinkList{$ObjectType} ne 'HASH';
         for my $LinkType ( sort keys %{ $LinkList{$ObjectType} } ) {
+            next if ref $LinkList{$ObjectType}{$LinkType} ne 'HASH';
             for my $Direction ( sort keys %{ $LinkList{$ObjectType}{$LinkType} } ) {
+                next if ref $LinkList{$ObjectType}{$LinkType}{$Direction} ne 'HASH';
                 for my $ObjectKey ( sort keys %{ $LinkList{$ObjectType}{$LinkType}{$Direction} } ) {
                     push @Links, {
                         Object    => $ObjectType,
