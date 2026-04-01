@@ -141,19 +141,40 @@ Provider:
         Type: Simple
       Type: Change::WorkOrderSearch
     ConfigItemCreate:
-      Description: Create a CMDB config item.
+      Description: Create a CMDB config item (ITSMConfigurationManagement).
       MappingInbound:
         Type: Simple
       MappingOutbound:
         Type: Simple
       Type: ConfigItem::ConfigItemCreate
     ConfigItemUpdate:
-      Description: Update a CMDB config item (creates new version).
+      Description: Update a CMDB config item (ITSMConfigurationManagement).
       MappingInbound:
         Type: Simple
       MappingOutbound:
         Type: Simple
       Type: ConfigItem::ConfigItemUpdate
+    ConfigItemGet:
+      Description: Get config item(s) by ID (ITSMConfigurationManagement).
+      MappingInbound:
+        Type: Simple
+      MappingOutbound:
+        Type: Simple
+      Type: ConfigItem::ConfigItemGet
+    ConfigItemSearch:
+      Description: Search config items with filters (ITSMConfigurationManagement).
+      MappingInbound:
+        Type: Simple
+      MappingOutbound:
+        Type: Simple
+      Type: ConfigItem::ConfigItemSearch
+    ConfigItemDelete:
+      Description: Delete a config item (ITSMConfigurationManagement).
+      MappingInbound:
+        Type: Simple
+      MappingOutbound:
+        Type: Simple
+      Type: ConfigItem::ConfigItemDelete
   Transport:
     Config:
       AdditionalHeaders: ~
@@ -249,6 +270,19 @@ Provider:
           RequestMethod:
             - POST
           Route: /ConfigItemUpdate/:ConfigItemID
+        ConfigItemGet:
+          RequestMethod:
+            - GET
+          Route: /ConfigItemGet/:ConfigItemID
+        ConfigItemSearch:
+          RequestMethod:
+            - GET
+            - POST
+          Route: /ConfigItemSearch
+        ConfigItemDelete:
+          RequestMethod:
+            - POST
+          Route: /ConfigItemDelete/:ConfigItemID
     Type: HTTP::REST
 RemoteSystem: ''
 Requester:

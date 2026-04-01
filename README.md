@@ -1,10 +1,10 @@
 # GenericInterfaceExtended
 
-![Version](https://img.shields.io/badge/version-1.1.0-blue)
+![Version](https://img.shields.io/badge/version-1.2.1-blue)
 ![License](https://img.shields.io/badge/license-GPL--3.0-green)
 ![OTOBO](https://img.shields.io/badge/OTOBO-10.1.x%20%7C%2011.x-orange)
 
-OPM package that adds **17 REST operations** to the OTOBO Generic Interface: link management, ticket merge, agent-level FAQ access, the service/SLA catalog, and ITSMChangeManagement queries — all missing from the OTOBO 10.x core.
+OPM package that adds **19 REST operations** to the OTOBO Generic Interface: link management, ticket merge, agent-level FAQ access and management, the service/SLA catalog, and ITSMChangeManagement queries — all missing from the OTOBO 10.x core. The included webservice YAML template also registers the 5 ConfigItem operations provided by ITSMConfigurationManagement.
 
 ## Why
 
@@ -25,7 +25,7 @@ OTOBO 10.x ships with Generic Interface operations for tickets and config items,
 | 10.1.x        | ✓ Supported |
 | 11.x          | ✓ Supported |
 
-## Operations (17)
+## Operations (19 custom + 5 from ITSMConfigurationManagement)
 
 | # | Group | Operation | Method | Route | Description |
 |---|-------|-----------|--------|-------|-------------|
@@ -35,24 +35,36 @@ OTOBO 10.x ships with Generic Interface operations for tickets and config items,
 | 4 | LinkObject | LinkDelete | POST | `/LinkDelete` | Delete a link between two objects |
 | 5 | FAQ | FAQSearch | GET/POST | `/FAQSearch` | Search FAQ articles (agent-level, all states) |
 | 6 | FAQ | FAQGet | GET | `/FAQGet/:ItemID` | Get a FAQ article (agent-level, no state restriction) |
-| 7 | Service | ServiceGet | GET | `/ServiceGet/:ServiceID` | Get service details |
-| 8 | Service | ServiceList | GET | `/ServiceList` | List all services |
-| 9 | Service | ServiceSearch | GET/POST | `/ServiceSearch` | Search services by name |
-| 10 | SLA | SLAGet | GET | `/SLAGet/:SLAID` | Get SLA details |
-| 11 | SLA | SLAList | GET | `/SLAList` | List all SLAs |
-| 12 | Change | ChangeGet | GET | `/ChangeGet/:ChangeID` | Get change details (ITSMChangeManagement) |
-| 13 | Change | ChangeList | GET | `/ChangeList` | List all change IDs |
-| 14 | Change | ChangeSearch | GET/POST | `/ChangeSearch` | Search changes with filters |
-| 15 | Change | WorkOrderGet | GET | `/WorkOrderGet/:WorkOrderID` | Get work order details |
-| 16 | Change | WorkOrderList | GET | `/WorkOrderList/:ChangeID` | List work order IDs for a change |
-| 17 | Change | WorkOrderSearch | GET/POST | `/WorkOrderSearch` | Search work orders with filters |
+| 7 | FAQ | FAQAdd | POST | `/FAQAdd` | Create a FAQ article (agent-level) |
+| 8 | FAQ | FAQUpdate | POST | `/FAQUpdate/:ItemID` | Update a FAQ article (agent-level) |
+| 9 | Service | ServiceGet | GET | `/ServiceGet/:ServiceID` | Get service details |
+| 10 | Service | ServiceList | GET | `/ServiceList` | List all services |
+| 11 | Service | ServiceSearch | GET/POST | `/ServiceSearch` | Search services by name |
+| 12 | SLA | SLAGet | GET | `/SLAGet/:SLAID` | Get SLA details |
+| 13 | SLA | SLAList | GET | `/SLAList` | List all SLAs |
+| 14 | Change | ChangeGet | GET | `/ChangeGet/:ChangeID` | Get change details (ITSMChangeManagement) |
+| 15 | Change | ChangeList | GET | `/ChangeList` | List all change IDs |
+| 16 | Change | ChangeSearch | GET/POST | `/ChangeSearch` | Search changes with filters |
+| 17 | Change | WorkOrderGet | GET | `/WorkOrderGet/:WorkOrderID` | Get work order details |
+| 18 | Change | WorkOrderList | GET | `/WorkOrderList/:ChangeID` | List work order IDs for a change |
+| 19 | Change | WorkOrderSearch | GET/POST | `/WorkOrderSearch` | Search work orders with filters |
+
+The following operations are **not part of this package** but are included in the YAML webservice template for convenience (provided by ITSMConfigurationManagement):
+
+| # | Group | Operation | Method | Route | Description |
+|---|-------|-----------|--------|-------|-------------|
+| — | ConfigItem | ConfigItemCreate | POST | `/ConfigItemCreate` | Create a CMDB config item |
+| — | ConfigItem | ConfigItemUpdate | POST | `/ConfigItemUpdate/:ConfigItemID` | Update a config item (new version) |
+| — | ConfigItem | ConfigItemGet | GET | `/ConfigItemGet/:ConfigItemID` | Get config item(s) by ID |
+| — | ConfigItem | ConfigItemSearch | GET/POST | `/ConfigItemSearch` | Search config items with filters |
+| — | ConfigItem | ConfigItemDelete | POST | `/ConfigItemDelete/:ConfigItemID` | Delete a config item |
 
 ## Architecture
 
 ```
 Kernel/
 ├── Config/Files/XML/
-│   └── GenericInterfaceExtended.xml          ← SysConfig registration for all 17 operations
+│   └── GenericInterfaceExtended.xml          ← SysConfig registration for all 19 operations
 └── GenericInterface/Operation/
     ├── Extensions/
     │   └── Common.pm                    ← shared base class (ValidateRequiredParams)
@@ -64,7 +76,9 @@ Kernel/
     │   └── LinkDelete.pm                ← extend Operation::Common
     ├── FAQ/
     │   ├── FAQSearch.pm
-    │   └── FAQGet.pm                    ← extend Operation::Common (soft dep: FAQ package)
+    │   ├── FAQGet.pm
+    │   ├── FAQAdd.pm
+    │   └── FAQUpdate.pm                 ← extend Operation::Common (soft dep: FAQ package)
     ├── Service/
     │   ├── ServiceGet.pm
     │   ├── ServiceList.pm
@@ -83,7 +97,7 @@ Kernel/
 
 **Pattern:** all operation modules inherit from either `Kernel::GenericInterface::Operation::Common` or `Kernel::GenericInterface::Operation::Ticket::Common`, following the standard OTOBO convention. The internal class `Extensions::Common` provides a shared `ValidateRequiredParams` helper used across all modules. Operations are registered in `GenericInterfaceExtended.xml` so OTOBO discovers them automatically after a SysConfig rebuild.
 
-**Soft dependencies:** the FAQ, ITSMCore, and ITSMChangeManagement packages are optional. If FAQ is not installed, `FAQSearch` and `FAQGet` return a graceful `.ModuleNotAvailable` error. If ITSMCore is installed, `ServiceGet` automatically includes ITSM fields (Type, Criticality). If ITSMChangeManagement is not installed, `ChangeGet/List/Search` and `WorkOrderGet/List/Search` return `.ModuleNotAvailable`.
+**Soft dependencies:** the FAQ, ITSMCore, and ITSMChangeManagement packages are optional. If FAQ is not installed, `FAQSearch`, `FAQGet`, `FAQAdd`, and `FAQUpdate` return a graceful `.ModuleNotAvailable` error. If ITSMCore is installed, `ServiceGet` automatically includes ITSM fields (Type, Criticality). If ITSMChangeManagement is not installed, `ChangeGet/List/Search` and `WorkOrderGet/List/Search` return `.ModuleNotAvailable`.
 
 ## Installation
 
@@ -108,7 +122,7 @@ sudo -u otobo perl bin/otobo.Console.pl Admin::Package::List | grep LinkService
 
 ### Post-installation: register the webservice
 
-Installing the OPM makes all 17 operations available to OTOBO's Generic Interface, but does not expose them over HTTP automatically. You must attach them to a Generic Interface webservice — either by importing a ready-made YAML or by adding the operations to an existing webservice.
+Installing the OPM makes all 19 operations available to OTOBO's Generic Interface, but does not expose them over HTTP automatically. You must attach them to a Generic Interface webservice — either by importing a ready-made YAML or by adding the operations to an existing webservice.
 
 **Option A — import the included YAML template (quickest):**
 
