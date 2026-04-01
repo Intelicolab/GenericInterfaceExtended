@@ -1,10 +1,10 @@
-# LinkServiceFAQMerge
+# LinkServiceFAQChangeMerge
 
-![Version](https://img.shields.io/badge/version-1.0.0-blue)
+![Version](https://img.shields.io/badge/version-1.1.0-blue)
 ![License](https://img.shields.io/badge/license-GPL--3.0-green)
 ![OTOBO](https://img.shields.io/badge/OTOBO-10.1.x%20%7C%2011.x-orange)
 
-OPM package that adds **11 REST operations** to the OTOBO Generic Interface: link management, ticket merge, agent-level FAQ access, and the service/SLA catalog — all missing from the OTOBO 10.x core.
+OPM package that adds **17 REST operations** to the OTOBO Generic Interface: link management, ticket merge, agent-level FAQ access, the service/SLA catalog, and ITSMChangeManagement queries — all missing from the OTOBO 10.x core.
 
 ## Why
 
@@ -14,8 +14,9 @@ OTOBO 10.x ships with Generic Interface operations for tickets and config items,
 - **Ticket merge** — no REST endpoint to merge two tickets.
 - **FAQ (agent level)** — the built-in FAQ operations are customer-scoped; agents need access to all states.
 - **Service & SLA catalog** — no REST operations to query the ITSM service tree or SLA list.
+- **Change management** — ITSMChangeManagement has no Generic Interface operations for querying changes or work orders.
 
-`LinkServiceFAQMerge` fills these gaps without patching the OTOBO core. All operations are registered via SysConfig XML and integrate with any existing Generic Interface webservice.
+`LinkServiceFAQChangeMerge` fills these gaps without patching the OTOBO core. All operations are registered via SysConfig XML and integrate with any existing Generic Interface webservice.
 
 ## Compatibility
 
@@ -24,7 +25,7 @@ OTOBO 10.x ships with Generic Interface operations for tickets and config items,
 | 10.1.x        | ✓ Supported |
 | 11.x          | ✓ Supported |
 
-## Operations (11)
+## Operations (17)
 
 | # | Group | Operation | Method | Route | Description |
 |---|-------|-----------|--------|-------|-------------|
@@ -39,13 +40,19 @@ OTOBO 10.x ships with Generic Interface operations for tickets and config items,
 | 9 | Service | ServiceSearch | GET/POST | `/ServiceSearch` | Search services by name |
 | 10 | SLA | SLAGet | GET | `/SLAGet/:SLAID` | Get SLA details |
 | 11 | SLA | SLAList | GET | `/SLAList` | List all SLAs |
+| 12 | Change | ChangeGet | GET | `/ChangeGet/:ChangeID` | Get change details (ITSMChangeManagement) |
+| 13 | Change | ChangeList | GET | `/ChangeList` | List all change IDs |
+| 14 | Change | ChangeSearch | GET/POST | `/ChangeSearch` | Search changes with filters |
+| 15 | Change | WorkOrderGet | GET | `/WorkOrderGet/:WorkOrderID` | Get work order details |
+| 16 | Change | WorkOrderList | GET | `/WorkOrderList/:ChangeID` | List work order IDs for a change |
+| 17 | Change | WorkOrderSearch | GET/POST | `/WorkOrderSearch` | Search work orders with filters |
 
 ## Architecture
 
 ```
 Kernel/
 ├── Config/Files/XML/
-│   └── LinkServiceFAQMerge.xml          ← SysConfig registration for all 11 operations
+│   └── LinkServiceFAQChangeMerge.xml          ← SysConfig registration for all 17 operations
 └── GenericInterface/Operation/
     ├── Extensions/
     │   └── Common.pm                    ← shared base class (ValidateRequiredParams)
@@ -62,20 +69,27 @@ Kernel/
     │   ├── ServiceGet.pm
     │   ├── ServiceList.pm
     │   └── ServiceSearch.pm             ← extend Operation::Common
-    └── SLA/
-        ├── SLAGet.pm
-        └── SLAList.pm                   ← extend Operation::Common
+    ├── SLA/
+    │   ├── SLAGet.pm
+    │   └── SLAList.pm                   ← extend Operation::Common
+    └── Change/
+        ├── ChangeGet.pm
+        ├── ChangeList.pm
+        ├── ChangeSearch.pm
+        ├── WorkOrderGet.pm
+        ├── WorkOrderList.pm
+        └── WorkOrderSearch.pm           ← extend Operation::Common (soft dep: ITSMChangeManagement)
 ```
 
-**Pattern:** all operation modules inherit from either `Kernel::GenericInterface::Operation::Common` or `Kernel::GenericInterface::Operation::Ticket::Common`, following the standard OTOBO convention. The internal class `Extensions::Common` provides a shared `ValidateRequiredParams` helper used across all modules. Operations are registered in `LinkServiceFAQMerge.xml` so OTOBO discovers them automatically after a SysConfig rebuild.
+**Pattern:** all operation modules inherit from either `Kernel::GenericInterface::Operation::Common` or `Kernel::GenericInterface::Operation::Ticket::Common`, following the standard OTOBO convention. The internal class `Extensions::Common` provides a shared `ValidateRequiredParams` helper used across all modules. Operations are registered in `LinkServiceFAQChangeMerge.xml` so OTOBO discovers them automatically after a SysConfig rebuild.
 
-**Soft dependencies:** the FAQ and ITSMCore packages are optional. If FAQ is not installed, `FAQSearch` and `FAQGet` return a graceful `.ModuleNotAvailable` error. If ITSMCore is installed, `ServiceGet` automatically includes ITSM fields (Type, Criticality).
+**Soft dependencies:** the FAQ, ITSMCore, and ITSMChangeManagement packages are optional. If FAQ is not installed, `FAQSearch` and `FAQGet` return a graceful `.ModuleNotAvailable` error. If ITSMCore is installed, `ServiceGet` automatically includes ITSM fields (Type, Criticality). If ITSMChangeManagement is not installed, `ChangeGet/List/Search` and `WorkOrderGet/List/Search` return `.ModuleNotAvailable`.
 
 ## Installation
 
 ### Option A: Web — Package Manager (recommended)
 
-1. Download `LinkServiceFAQMerge-1.0.0.opm` from the [latest GitHub Release](https://github.com/oeretana/LinkServiceFAQMerge/releases/latest).
+1. Download `LinkServiceFAQChangeMerge-1.0.0.opm` from the [latest GitHub Release](https://github.com/oeretana/LinkServiceFAQChangeMerge/releases/latest).
 2. In OTOBO: **Admin → Package Manager → Install Package**, upload the `.opm` file.
 3. OTOBO rebuilds the configuration automatically on install.
 
@@ -83,10 +97,10 @@ Kernel/
 
 ```bash
 # Download the package
-wget https://github.com/oeretana/LinkServiceFAQMerge/releases/download/v1.0.0/LinkServiceFAQMerge-1.0.0.opm
+wget https://github.com/oeretana/LinkServiceFAQChangeMerge/releases/download/v1.0.0/LinkServiceFAQChangeMerge-1.0.0.opm
 
 # Install
-sudo -u otobo perl bin/otobo.Console.pl Admin::Package::Install /path/to/LinkServiceFAQMerge-1.0.0.opm
+sudo -u otobo perl bin/otobo.Console.pl Admin::Package::Install /path/to/LinkServiceFAQChangeMerge-1.0.0.opm
 
 # Verify
 sudo -u otobo perl bin/otobo.Console.pl Admin::Package::List | grep LinkService
@@ -94,15 +108,15 @@ sudo -u otobo perl bin/otobo.Console.pl Admin::Package::List | grep LinkService
 
 ### Post-installation: register the webservice
 
-Installing the OPM makes all 11 operations available to OTOBO's Generic Interface, but does not expose them over HTTP automatically. You must attach them to a Generic Interface webservice — either by importing a ready-made YAML or by adding the operations to an existing webservice.
+Installing the OPM makes all 17 operations available to OTOBO's Generic Interface, but does not expose them over HTTP automatically. You must attach them to a Generic Interface webservice — either by importing a ready-made YAML or by adding the operations to an existing webservice.
 
 **Option A — import the included YAML template (quickest):**
 
 1. Clone this repository (or download the source archive from the release page).
 2. Go to **Admin → Web Services → Add Web Service → Import**.
-3. Upload `development/webservices/LinkServiceFAQMergeConnectorREST.yml`.
+3. Upload `development/webservices/LinkServiceFAQChangeMergeConnectorREST.yml`.
 
-OTOBO will prompt you for a name during import. If you leave it blank, the webservice will be named `LinkServiceFAQMergeConnectorREST` (taken from the file name). You can also rename it later in **Admin → Web Services → Edit**.
+OTOBO will prompt you for a name during import. If you leave it blank, the webservice will be named `LinkServiceFAQChangeMergeConnectorREST` (taken from the file name). You can also rename it later in **Admin → Web Services → Edit**.
 
 > **Note:** OTOBO's YAML parser rejects non-ASCII characters. If you modify the YAML, keep all description fields ASCII-only or the import will fail with `Loading the YAML string failed`.
 >
@@ -115,7 +129,7 @@ Go to **Admin → Web Services → [your webservice] → Edit**, then add each o
 ## Uninstallation
 
 ```bash
-sudo -u otobo perl bin/otobo.Console.pl Admin::Package::Uninstall /path/to/LinkServiceFAQMerge-1.0.0.opm
+sudo -u otobo perl bin/otobo.Console.pl Admin::Package::Uninstall /path/to/LinkServiceFAQChangeMerge-1.0.0.opm
 ```
 
 > The uninstall command requires the `.opm` file path, not the package name.
@@ -126,10 +140,10 @@ No OTOBO installation required:
 
 ```bash
 bash bin/build-opm.sh
-# Output: dist/LinkServiceFAQMerge-1.0.0.opm
+# Output: dist/LinkServiceFAQChangeMerge-1.0.0.opm
 ```
 
-The script reads the version from `LinkServiceFAQMerge.sopm`, base64-encodes all source files, and writes a self-contained `.opm` to `dist/`.
+The script reads the version from `LinkServiceFAQChangeMerge.sopm`, base64-encodes all source files, and writes a self-contained `.opm` to `dist/`.
 
 ## Troubleshooting
 
@@ -140,6 +154,7 @@ The script reads the version from `LinkServiceFAQMerge.sopm`, base64-encodes all
 | `Need GroupName!` when calling an operation | Request uses `GroupID` instead of `GroupName` | Replace `GroupID` with `GroupName` in the request payload |
 | Operations do not appear in webservice editor | Package installed but SysConfig not rebuilt | Run `Maint::Config::Rebuild`, then refresh the webservice editor |
 | `FAQSearch`/`FAQGet` return `.ModuleNotAvailable` | FAQ package is not installed | Install the OTOBO FAQ package and retry |
+| `ChangeGet`/`WorkOrderGet` etc. return `.ModuleNotAvailable` | ITSMChangeManagement package is not installed | Install the OTOBO ITSMChangeManagement package and retry |
 
 ## License
 

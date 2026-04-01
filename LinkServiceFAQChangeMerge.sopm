@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <otobo_package version="1.1">
-    <Name>LinkServiceFAQMerge</Name>
-    <Version>1.0.0</Version>
+    <Name>LinkServiceFAQChangeMerge</Name>
+    <Version>1.1.0</Version>
     <Vendor>INTELICOLAB</Vendor>
-    <URL>https://github.com/oeretana/LinkServiceFAQMerge</URL>
+    <URL>https://github.com/oeretana/LinkServiceFAQChangeMerge</URL>
     <License>GNU GENERAL PUBLIC LICENSE Version 3, 29 June 2007</License>
-    <Description Lang="en">Extends the OTOBO Generic Interface with 11 additional REST operations: TicketMerge, LinkList/Add/Delete, FAQSearch/Get (agent), ServiceGet/List/Search, SLAGet/List.</Description>
-    <Description Lang="es">Extiende el Generic Interface de OTOBO con 11 operaciones REST adicionales: TicketMerge, LinkList/Add/Delete, FAQSearch/Get (agente), ServiceGet/List/Search, SLAGet/List.</Description>
+    <Description Lang="en">Extends the OTOBO Generic Interface with 17 additional REST operations: TicketMerge, LinkList/Add/Delete, FAQSearch/Get (agent), ServiceGet/List/Search, SLAGet/List, ChangeGet/List/Search, WorkOrderGet/List/Search.</Description>
+    <Description Lang="es">Extiende el Generic Interface de OTOBO con 17 operaciones REST adicionales: TicketMerge, LinkList/Add/Delete, FAQSearch/Get (agente), ServiceGet/List/Search, SLAGet/List, ChangeGet/List/Search, WorkOrderGet/List/Search.</Description>
     <Framework Minimum="10.1.0">10.1.x</Framework>
     <Framework Minimum="11.0.0">11.0.x</Framework>
     <Filelist>
-        <File Permission="660" Location="Kernel/Config/Files/XML/LinkServiceFAQMerge.xml"/>
+        <File Permission="660" Location="Kernel/Config/Files/XML/LinkServiceFAQChangeMerge.xml"/>
         <File Permission="660" Location="Kernel/GenericInterface/Operation/Extensions/Common.pm"/>
         <File Permission="660" Location="Kernel/GenericInterface/Operation/Ticket/TicketMerge.pm"/>
         <File Permission="660" Location="Kernel/GenericInterface/Operation/LinkObject/LinkList.pm"/>
@@ -23,6 +23,12 @@
         <File Permission="660" Location="Kernel/GenericInterface/Operation/Service/ServiceSearch.pm"/>
         <File Permission="660" Location="Kernel/GenericInterface/Operation/SLA/SLAGet.pm"/>
         <File Permission="660" Location="Kernel/GenericInterface/Operation/SLA/SLAList.pm"/>
+        <File Permission="660" Location="Kernel/GenericInterface/Operation/Change/ChangeGet.pm"/>
+        <File Permission="660" Location="Kernel/GenericInterface/Operation/Change/ChangeList.pm"/>
+        <File Permission="660" Location="Kernel/GenericInterface/Operation/Change/ChangeSearch.pm"/>
+        <File Permission="660" Location="Kernel/GenericInterface/Operation/Change/WorkOrderGet.pm"/>
+        <File Permission="660" Location="Kernel/GenericInterface/Operation/Change/WorkOrderList.pm"/>
+        <File Permission="660" Location="Kernel/GenericInterface/Operation/Change/WorkOrderSearch.pm"/>
     </Filelist>
     <CodeInstall Type="post"><![CDATA[
         $Kernel::OM->Get('Kernel::System::Cache')->CleanUp();

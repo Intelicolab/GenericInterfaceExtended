@@ -138,4 +138,77 @@
         </Value>
     </Setting>
 
+    <!-- Change operations (ITSMChangeManagement) -->
+    <Setting Name="GenericInterface::Operation::Module###Change::ChangeGet" Required="0" Valid="1">
+        <Description Translatable="1">GenericInterface module registration for operation backend. Additional template: AdminGenericInterfaceOperationDefault.</Description>
+        <Navigation>GenericInterface::Operation::ModuleRegistration</Navigation>
+        <Value>
+            <Hash>
+                <Item Key="Name">ChangeGet</Item>
+                <Item Key="Controller">Change</Item>
+                <Item Key="ConfigDialog">AdminGenericInterfaceOperationDefault</Item>
+            </Hash>
+        </Value>
+    </Setting>
+
+    <Setting Name="GenericInterface::Operation::Module###Change::ChangeList" Required="0" Valid="1">
+        <Description Translatable="1">GenericInterface module registration for operation backend. Additional template: AdminGenericInterfaceOperationDefault.</Description>
+        <Navigation>GenericInterface::Operation::ModuleRegistration</Navigation>
+        <Value>
+            <Hash>
+                <Item Key="Name">ChangeList</Item>
+                <Item Key="Controller">Change</Item>
+                <Item Key="ConfigDialog">AdminGenericInterfaceOperationDefault</Item>
+            </Hash>
+        </Value>
+    </Setting>
+
+    <Setting Name="GenericInterface::Operation::Module###Change::ChangeSearch" Required="0" Valid="1">
+        <Description Translatable="1">GenericInterface module registration for operation backend. Additional template: AdminGenericInterfaceOperationDefault.</Description>
+        <Navigation>GenericInterface::Operation::ModuleRegistration</Navigation>
+        <Value>
+            <Hash>
+                <Item Key="Name">ChangeSearch</Item>
+                <Item Key="Controller">Change</Item>
+                <Item Key="ConfigDialog">AdminGenericInterfaceOperationDefault</Item>
+            </Hash>
+        </Value>
+    </Setting>
+
+    <Setting Name="GenericInterface::Operation::Module###Change::WorkOrderGet" Required="0" Valid="1">
+        <Description Translatable="1">GenericInterface module registration for operation backend. Additional template: AdminGenericInterfaceOperationDefault.</Description>
+        <Navigation>GenericInterface::Operation::ModuleRegistration</Navigation>
+        <Value>
+            <Hash>
+                <Item Key="Name">WorkOrderGet</Item>
+                <Item Key="Controller">Change</Item>
+                <Item Key="ConfigDialog">AdminGenericInterfaceOperationDefault</Item>
+            </Hash>
+        </Value>
+    </Setting>
+
+    <Setting Name="GenericInterface::Operation::Module###Change::WorkOrderList" Required="0" Valid="1">
+        <Description Translatable="1">GenericInterface module registration for operation backend. Additional template: AdminGenericInterfaceOperationDefault.</Description>
+        <Navigation>GenericInterface::Operation::ModuleRegistration</Navigation>
+        <Value>
+            <Hash>
+                <Item Key="Name">WorkOrderList</Item>
+                <Item Key="Controller">Change</Item>
+                <Item Key="ConfigDialog">AdminGenericInterfaceOperationDefault</Item>
+            </Hash>
+        </Value>
+    </Setting>
+
+    <Setting Name="GenericInterface::Operation::Module###Change::WorkOrderSearch" Required="0" Valid="1">
+        <Description Translatable="1">GenericInterface module registration for operation backend. Additional template: AdminGenericInterfaceOperationDefault.</Description>
+        <Navigation>GenericInterface::Operation::ModuleRegistration</Navigation>
+        <Value>
+            <Hash>
+                <Item Key="Name">WorkOrderSearch</Item>
+                <Item Key="Controller">Change</Item>
+                <Item Key="ConfigDialog">AdminGenericInterfaceOperationDefault</Item>
+            </Hash>
+        </Value>
+    </Setting>
+
 </otobo_config>

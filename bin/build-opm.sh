@@ -1,15 +1,15 @@
 #!/bin/bash
-# Build LinkServiceFAQMerge.opm from .sopm and source files.
+# Build LinkServiceFAQChangeMerge.opm from .sopm and source files.
 # Does NOT require an OTOBO installation — portable build.
 #
 # Usage: ./bin/build-opm.sh
-# Output: dist/LinkServiceFAQMerge-<version>.opm
+# Output: dist/LinkServiceFAQChangeMerge-<version>.opm
 
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 PROJECT_DIR="$(dirname "$SCRIPT_DIR")"
-SOPM_FILE="$PROJECT_DIR/LinkServiceFAQMerge.sopm"
+SOPM_FILE="$PROJECT_DIR/LinkServiceFAQChangeMerge.sopm"
 
 if [ ! -f "$SOPM_FILE" ]; then
     echo "ERROR: $SOPM_FILE not found." >&2
@@ -17,7 +17,7 @@ if [ ! -f "$SOPM_FILE" ]; then
 fi
 
 # Extract version from .sopm
-VERSION=$(grep -oP '<Version>\K[^<]+' "$SOPM_FILE")
+VERSION=$(sed -n 's/.*<Version>\([^<]*\)<\/Version>.*/\1/p' "$SOPM_FILE")
 if [ -z "$VERSION" ]; then
     echo "ERROR: Could not extract version from .sopm" >&2
     exit 1
@@ -25,9 +25,9 @@ fi
 
 OUTPUT_DIR="$PROJECT_DIR/dist"
 mkdir -p "$OUTPUT_DIR"
-OPM_FILE="$OUTPUT_DIR/LinkServiceFAQMerge-${VERSION}.opm"
+OPM_FILE="$OUTPUT_DIR/LinkServiceFAQChangeMerge-${VERSION}.opm"
 
-echo "Building LinkServiceFAQMerge v${VERSION}..."
+echo "Building LinkServiceFAQChangeMerge v${VERSION}..."
 
 # Start building the OPM XML
 {
@@ -35,8 +35,8 @@ echo "Building LinkServiceFAQMerge v${VERSION}..."
     while IFS= read -r line; do
         if echo "$line" | grep -q '<File .*Location="'; then
             # Extract attributes
-            PERMISSION=$(echo "$line" | grep -oP 'Permission="\K[^"]+')
-            LOCATION=$(echo "$line" | grep -oP 'Location="\K[^"]+')
+            PERMISSION=$(echo "$line" | sed 's/.*Permission="\([^"]*\)".*/\1/')
+            LOCATION=$(echo "$line" | sed 's/.*Location="\([^"]*\)".*/\1/')
 
             FILE_PATH="$PROJECT_DIR/$LOCATION"
             if [ ! -f "$FILE_PATH" ]; then
@@ -45,7 +45,12 @@ echo "Building LinkServiceFAQMerge v${VERSION}..."
             fi
 
             # Base64 encode the file content
-            B64_CONTENT=$(base64 -w 0 "$FILE_PATH")
+            # macOS base64 uses -i for input; Linux uses positional arg with -w 0
+            if [ "$(uname)" = "Darwin" ]; then
+                B64_CONTENT=$(base64 -b 0 -i "$FILE_PATH")
+            else
+                B64_CONTENT=$(base64 -w 0 "$FILE_PATH")
+            fi
 
             echo "        <File Permission=\"${PERMISSION}\" Location=\"${LOCATION}\" Encode=\"Base64\">${B64_CONTENT}</File>"
         else

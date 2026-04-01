@@ -2,8 +2,8 @@
 Debugger:
   DebugThreshold: error
   TestMode: '0'
-Description: 'LinkServiceFAQMerge: LinkObject, Service, SLA, FAQ agent and TicketMerge
-  operations for OTOBO Generic Interface.'
+Description: 'LinkServiceFAQChangeMerge: LinkObject, Service, SLA, FAQ agent, TicketMerge
+  and ITSMChangeManagement operations for OTOBO Generic Interface.'
 FrameworkVersion: 10.1.14
 Provider:
   Operation:
@@ -84,6 +84,48 @@ Provider:
       MappingOutbound:
         Type: Simple
       Type: SLA::SLAList
+    ChangeGet:
+      Description: Get a change by ID (ITSMChangeManagement).
+      MappingInbound:
+        Type: Simple
+      MappingOutbound:
+        Type: Simple
+      Type: Change::ChangeGet
+    ChangeList:
+      Description: List all change IDs.
+      MappingInbound:
+        Type: Simple
+      MappingOutbound:
+        Type: Simple
+      Type: Change::ChangeList
+    ChangeSearch:
+      Description: Search changes with filters.
+      MappingInbound:
+        Type: Simple
+      MappingOutbound:
+        Type: Simple
+      Type: Change::ChangeSearch
+    WorkOrderGet:
+      Description: Get a work order by ID (ITSMChangeManagement).
+      MappingInbound:
+        Type: Simple
+      MappingOutbound:
+        Type: Simple
+      Type: Change::WorkOrderGet
+    WorkOrderList:
+      Description: List work order IDs for a change.
+      MappingInbound:
+        Type: Simple
+      MappingOutbound:
+        Type: Simple
+      Type: Change::WorkOrderList
+    WorkOrderSearch:
+      Description: Search work orders with filters.
+      MappingInbound:
+        Type: Simple
+      MappingOutbound:
+        Type: Simple
+      Type: Change::WorkOrderSearch
   Transport:
     Config:
       AdditionalHeaders: ~
@@ -137,6 +179,32 @@ Provider:
           RequestMethod:
             - GET
           Route: /SLAList
+        ChangeGet:
+          RequestMethod:
+            - GET
+          Route: /ChangeGet/:ChangeID
+        ChangeList:
+          RequestMethod:
+            - GET
+          Route: /ChangeList
+        ChangeSearch:
+          RequestMethod:
+            - GET
+            - POST
+          Route: /ChangeSearch
+        WorkOrderGet:
+          RequestMethod:
+            - GET
+          Route: /WorkOrderGet/:WorkOrderID
+        WorkOrderList:
+          RequestMethod:
+            - GET
+          Route: /WorkOrderList/:ChangeID
+        WorkOrderSearch:
+          RequestMethod:
+            - GET
+            - POST
+          Route: /WorkOrderSearch
     Type: HTTP::REST
 RemoteSystem: ''
 Requester:
